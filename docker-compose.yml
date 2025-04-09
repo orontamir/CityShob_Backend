@@ -1,0 +1,34 @@
+version: '3.8'
+services:
+
+#------------------------ mongodb ---------------------------
+
+  mongo:
+    image: mongo
+    container_name: mongo
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=qwerty
+    command: [--auth]
+    volumes:
+      - '~\Documents\Dev\MongoDb:/data/db'
+    ports:
+      - 27017:27017
+    restart: unless-stopped
+
+
+#------------------------ CityShob Server ---------------------------    
+  cityshob:
+    container_name: cityshob
+    build:
+      context: .
+      dockerfile: Dockerfile  
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - MONGO_CONNECTION_STRING=mongodb://root:qwerty@mongo:27017/cityshobDb?authSource=admin&authMechanism=SCRAM-SHA-1
+    restart: unless-stopped
+    ports:
+      - 3000:3000
+    depends_on:
+      - mongo
